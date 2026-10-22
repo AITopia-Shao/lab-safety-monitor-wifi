@@ -1,0 +1,6 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>实验室安全 · 视觉主控</title><link rel="stylesheet" href="/static/screen.css"><body>
+<header><div><p class="eyebrow">LABGUARD / VISION</p><h1>实验室安全视觉监测</h1><p>电脑主控屏 · 双摄识别 · 事件复核</p></div><span id="state" class="badge">正在连接</span></header>
+<main><div class="controls"><button data-view="live" class="selected">实时画面 · 24 帧目标</button><button data-view="analysis">识别标注</button></div><section class="screen-grid"><article class="card"><h2>宏观行为 · 外置 USB 摄像头</h2><img class="stream" data-stream="pano" alt="全景识别画面"></article><article class="card"><h2>微观台面 · DroidCam 手机主摄</h2><img class="stream" data-stream="desk" alt="台面识别画面"></article></section>
+<section class="card"><h2>当前状态</h2><div id="summary">识别准备中</div><div id="ppe" class="chips"></div><div id="alerts"></div></section>
+<section class="controls"><button data-mode="live">USB相机 + DroidCam实拍</button><button data-mode="samples">真实样本回放</button><button data-action="manual_snapshot">双路抓拍</button><a id="phoneLink" class="button" href="/phone">打开手机小屏</a></section>
+<section class="card"><h2>事件与复核</h2><p id="stats">暂无事件</p><div id="events"></div></section></main><footer>比赛简化版 · 只进行视觉识别与软件提醒</footer><script src="/static/screen.js"></script></body></html>

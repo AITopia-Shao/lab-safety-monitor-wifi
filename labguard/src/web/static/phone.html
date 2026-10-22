@@ -1,0 +1,8 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>实验台随身小屏</title><link rel="stylesheet" href="/static/screen.css"><body class="phone">
+<header><div><p class="eyebrow">LABGUARD / POCKET</p><h1>实验台随身小屏</h1></div><span id="state" class="badge">正在连接</span></header>
+<nav><button data-tab="guard" class="selected">守护</button><button data-tab="views">画面</button><button data-tab="history">事件</button></nav>
+<main><section data-page="guard"><article class="card"><h2>人员与台面</h2><div id="summary">请先连接电脑主控端</div><div id="ppe" class="chips"></div><div id="alerts"></div></article></section>
+<section data-page="views" hidden><div class="controls"><button data-view="live" class="selected">实时画面 · 24 帧目标</button><button data-view="analysis">识别标注</button></div><div class="screen-grid"><article class="card"><h2>全景 · 外置 USB 摄像头</h2><img class="stream" data-stream="pano" alt="外置 USB 摄像头画面"></article><article class="card"><h2>台面 · DroidCam 手机主摄</h2><img class="stream" data-stream="desk" alt="DroidCam 手机主摄画面"></article></div></section>
+<section data-page="history" hidden><article class="card"><h2>最近事件</h2><p id="stats"></p><div id="events"></div></article></section></main>
+<div class="phone-actions"><button data-action="manual_snapshot">抓拍</button><button data-action="mute">静音 60 秒</button><button data-action="call_admin" class="warn">现场求助</button></div>
+<p id="notice" role="status"></p><script src="/static/screen.js"></script></body></html>

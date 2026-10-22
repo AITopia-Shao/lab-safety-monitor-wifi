@@ -1,0 +1,15 @@
+PyQt6==6.7.1
+PyQt6-Qt6==6.7.3
+numpy==1.26.4
+opencv-python==4.10.0.84
+Pillow==11.1.0
+torch==2.6.0+cpu
+torchvision==0.21.0+cpu
+ultralytics==8.4.95
+PyYAML==6.0.3
+fastapi==0.115.12
+uvicorn==0.34.2
+httpx==0.28.1
+websockets==15.0.1
+comtypes==1.4.13
+pygrabber==0.2

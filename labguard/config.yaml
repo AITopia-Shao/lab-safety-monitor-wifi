@@ -1,0 +1,53 @@
+# 电脑与安卓手机的纯视觉比赛版配置。
+camera:
+  pano: 0                     # 外置 USB 全景摄像头
+  pano_name: Web Camera # 按名称锁定外置相机，不回退到故障内置相机或手机
+  pano_fps: 30                 # 内置相机使用支持的 30 FPS；手机上传独立固定为 24 FPS
+  desk: droidcam://camera      # DroidCam Wi-Fi 接入的台面画面
+  width: 640
+  height: 480
+  fourcc: YUY2                 # 本机 Integrated Camera 支持 YUY2/NV12，不支持 MJPG
+  capture_fps: 24             # 实时预览目标；模型独立消费最新帧
+vision:
+  prefer_format: [pt]
+  imgsz: 416                  # 本机 CPU 演示默认；小目标可调至 640
+  conf: 0.35
+  iou: 0.45
+  device: cpu
+presence:
+  absent_seconds: 15.0        # 连续无人员装备证据达到此时长，才认为无人
+  recover_seconds: 1.0
+voting:
+  window_s: 3.0
+  on_ratio: 0.6
+  off_ratio: 0.2
+  min_frames: 4
+sleep:
+  head_y_ratio: 0.60
+  still_seconds: 10.0
+  max_motion: 0.03
+desk:
+  edge_line: [[0.0, 0.92], [1.0, 0.92]]   # 现场摆放手机后按实际桌边标定
+  edge_margin: 0.06
+events:
+  retrigger_s: 10.0
+  db: runtime/events.db
+  snapshot_dir: runtime/snapshots
+ui:
+  wave_fps: 12
+web:
+  host: 0.0.0.0             # 手机小屏通过热点/局域网访问，所有数据和控制接口需配对码
+  port: 8080                 # 被占用时顺延，连接手机脚本自动读取实际端口
+  token: ""
+  stream_fps: 24
+  stream_width: 640
+phone:
+  target_fps: 24              # 手机主摄上传目标；与模型识别 FPS 分开统计
+  stale_seconds: 2.5          # 超时立即停止使用旧手机帧进行判断
+  max_jpeg_bytes: 1500000
+
+droidcam:
+  host: ""                  # 小屏自动提交手机的热点/Wi-Fi 地址
+  port: 4747
+  rotation: 0
+  enabled: true

@@ -1,0 +1,24 @@
+'use strict';
+const token=new URLSearchParams(location.search).get('token')||'';
+const state=document.querySelector('#state');let polling=false,lastEventKey='',lastAlert='',audio;
+document.addEventListener('pointerdown',()=>{try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume()}catch(_){}},{once:true});
+async function api(path,body){const r=await fetch(path,{method:body===undefined?'GET':'POST',headers:{'X-Token':token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});if(!r.ok)throw new Error(r.status===401?'配对信息无效，请重新连接手机':'操作失败，请检查电脑端');return r.json()}
+function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
+function showStatus(s){if(!s.vision)return;state.textContent=s.state_text;state.className='badge '+s.state;
+const v=s.vision;document.querySelector('#summary').textContent=(v.person_present===null?'人员在场：不可判断':v.unattended?'人员在场：无人值守':'人员在场：有人')+' ｜ '+(s.phone.connected?'手机主摄 '+s.phone.received_fps+' / 24 帧/秒':'手机主摄未连接')+' ｜ 台面器皿 '+v.chem_items.length+' 件';
+const ppe=document.querySelector('#ppe');ppe.replaceChildren(...v.ppe.map(p=>{const chip=node('span',undefined,'chip '+p.status);chip.append(node('strong',p.name),node('small',({ok:'已观察到',bad:'有违规',unknown:'待确认'}[p.status])));return chip}));
+document.querySelector('#alerts').replaceChildren(...s.active_events.filter(e=>e.level!=='INFO').map(e=>node('div',e.title+'：'+e.message,'alert')));
+const alert=s.active_events.find(e=>e.level==='WARNING');if(alert&&alert.uid!==lastAlert&&Date.now()/1000>s.mute_until){lastAlert=alert.uid;try{navigator.vibrate?.([120,80,120]);if(audio){const tone=audio.createOscillator(),gain=audio.createGain();gain.gain.value=.08;tone.frequency.value=740;tone.connect(gain);gain.connect(audio.destination);tone.start();tone.stop(audio.currentTime+.18)}}catch(_){}}
+document.querySelector('#stats').textContent='事件 '+s.stats.total+' · 已复核 '+s.stats.reviewed;
+}
+async function refreshEvents(){const data=await api('/api/events');const key=JSON.stringify(data.events.map(e=>[e.uid,e.review,e.snapshot]));if(key===lastEventKey)return;lastEventKey=key;
+const items=data.events.map(e=>{const card=node('article',undefined,'event');card.append(node('h3',e.title),node('div',e.time_str+' · '+e.level,'meta'),node('p',e.message));if(e.snapshot){const img=node('img');img.src='/api/events/'+encodeURIComponent(e.uid)+'/snapshot.jpg?token='+encodeURIComponent(token);img.alt='事件发生时的双路画面';card.append(img)}if(!document.body.classList.contains('phone')){for(const [label,correct]of[['判断正确',true],['误报',false]]){const b=node('button',label);b.disabled=e.review!==null;b.onclick=async()=>{await api('/api/events/'+encodeURIComponent(e.uid)+'/review',{correct});lastEventKey='';await refreshEvents()};card.append(b)}}card.append(node('div',e.review===null?'待复核':e.review?'已核验：正确':'已核验：误报','meta'));return card});document.querySelector('#events').replaceChildren(...items)}
+async function poll(){if(polling)return;polling=true;try{showStatus(await api('/api/snapshot'));await refreshEvents()}catch(e){state.textContent='连接已断开';state.className='badge WARNING';document.querySelector('#summary').textContent=e.message;document.querySelector('#ppe').replaceChildren();document.querySelector('#alerts').replaceChildren(node('div','当前状态不可判断，请恢复连接。','alert'))}finally{polling=false}}
+document.querySelectorAll('[data-action]').forEach(b=>b.onclick=async()=>{try{await api('/api/'+b.dataset.action,{});const n=document.querySelector('#notice');if(n)n.textContent=b.dataset.action==='call_admin'?'已在电脑主控端留下求助记录':'操作已完成';await poll()}catch(e){alert(e.message)}});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=async()=>{await api('/api/camera',{mode:b.dataset.mode});await poll()});
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-page]').forEach(p=>p.hidden=p.dataset.page!==b.dataset.tab);document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('selected',x===b));refreshStreams()});
+const phoneLink=document.querySelector('#phoneLink');if(phoneLink)phoneLink.href='/phone?token='+encodeURIComponent(token);
+let frameView='live';
+function refreshStreams(){document.querySelectorAll('[data-stream]').forEach(img=>{const src=img.closest('[hidden]')?'':'/stream/'+img.dataset.stream+'.mjpg?token='+encodeURIComponent(token)+'&view='+frameView;if(img.dataset.source!==src){img.dataset.source=src;if(src)img.src=src;else img.removeAttribute('src')}})}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{frameView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('selected',x===b));refreshStreams()});
+refreshStreams();poll();setInterval(poll,700);
